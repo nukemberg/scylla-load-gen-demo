@@ -1,0 +1,9 @@
+[Unit]
+Description=Scylla bench
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/scylla-bench-run.sh /var/lib/cfn-init/data/metadata.json
+Restart=on-success
+
+

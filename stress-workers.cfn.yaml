@@ -1,0 +1,193 @@
+Parameters:
+  VpcStackName:
+    Description: VPC Cloudformation stack name
+    Type: String
+  ScyllaNodes:
+    Description: IP Address list of Scylla nodes
+    Type: CommaDelimitedList
+  ScyllaPassword:
+    Description: Scylla CQL password
+    Type: String
+  SSHKeyName:
+    Description: SSH Key name
+    Type: String
+  LatestAMI:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+Resources:
+  StressSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Scylla stress workers"
+      GroupName: "scylla-stress-test-workers"
+      SecurityGroupEgress:
+        IpProtocol: -1
+        FromPort: 0
+        ToPort: 65535
+        CidrIp: 0.0.0.0/0
+      SecurityGroupIngress:
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: ScyllaStressSG
+      VpcId: 
+        Fn::ImportValue: !Sub ${VpcStackName}:Vpc
+  ReadersLT:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: !Ref LatestAMI
+        InstanceType: c5.12xlarge
+        KeyName: !Ref SSHKeyName
+        UserData: !Base64 
+          Fn::Join:
+            - ''
+            - - |
+                #!/bin/bash -xe
+              - |
+                # Install the files and packages from the metadata
+              - '/opt/aws/bin/cfn-init -v '
+              - '         --stack '
+              - !Ref AWS::StackName
+              - '         --resource ReadersLT '
+              - '         --region '
+              - !Ref AWS::Region
+              - |+
+
+        SecurityGroupIds:
+          - !GetAtt StressSG.GroupId
+      LaunchTemplateName: !Sub ${AWS::StackName}-stress-reader-launch-template
+    Metadata:
+      SCYLLA_BENCH:
+        nodes: !Ref ScyllaNodes
+        password: !Ref ScyllaPassword
+        params: -mode read -workload uniform -partition-count 1000000000 -concurrency 400 -connection-count 64 -duration 30m -measure-latency false -replication-factor 3 -rows-per-request 1 -consistency-level one
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              jq: []
+          files:
+            /usr/bin/scylla-bench:
+              source: https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/scylla-bench/x86-64/scylla-bench
+              mode: "000755"
+              owner: root
+              group: root
+            /usr/bin/scylla-bench-run.sh:              
+              source: https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/scylla-bench/scylla-bench-cfn-run.sh
+              mode: "000755"
+              owner: root
+              group: root
+            /etc/systemd/system/scylla-bench.service:
+              source: https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/scylla-bench/scylla-bench.service.unit
+              mode: "000644"
+              owner: root
+              group: root
+          services:
+            sysvinit:
+              scylla-bench:
+                enabled: true
+                ensureRunning: true
+                files:
+                  - /usr/bin/scylla-bench-run.sh
+                  - /usr/bin/scylla-bench
+                  - /etc/systemd/system/scylla-bench.service.unit
+  WritersLT:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: !Ref LatestAMI
+        InstanceType: c5.12xlarge
+        KeyName: !Ref SSHKeyName
+        UserData: !Base64 
+          Fn::Join:
+            - ''
+            - - |
+                #!/bin/bash -xe
+              - |
+                # Install the files and packages from the metadata
+              - '/opt/aws/bin/cfn-init -v '
+              - '         --stack '
+              - !Ref AWS::StackName
+              - '         --resource WritersLT '
+              - '         --region '
+              - !Ref AWS::Region
+              - |+
+
+        SecurityGroupIds:
+          - !GetAtt StressSG.GroupId
+      LaunchTemplateName: !Sub ${AWS::StackName}-stress-writer-launch-template
+    Metadata:
+      SCYLLA_BENCH:
+        nodes: !Ref ScyllaNodes
+        password: !Ref ScyllaPassword
+        params: -mode write -workload uniform -partition-count 1000000000 -concurrency 400 -connection-count 64 -duration 30m -measure-latency false -replication-factor 3 -rows-per-request 1 -consistency-level one
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              jq: []
+          files:
+            /usr/bin/scylla-bench:
+              source: https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/scylla-bench/x86-64/scylla-bench
+              mode: "000755"
+              owner: root
+              group: root
+            /usr/bin/scylla-bench-run.sh:              
+              source: https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/scylla-bench/scylla-bench-cfn-run.sh
+              mode: "000755"
+              owner: root
+              group: root
+            /etc/systemd/system/scylla-bench.service:
+              source: https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/scylla-bench/scylla-bench.service.unit
+              mode: "000644"
+              owner: root
+              group: root
+          services:
+            sysvinit:
+              scylla-bench:
+                enabled: true
+                ensureRunning: true
+                files:
+                  - /usr/bin/scylla-bench-run.sh
+                  - /usr/bin/scylla-bench
+                  - /etc/systemd/system/scylla-bench.service.unit
+
+  StressWorkersRead:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: StressReadAG
+      VPCZoneIdentifier:
+        - Fn::ImportValue: !Sub ${VpcStackName}:StressSubnetA
+      Cooldown: 120
+      DesiredCapacity: 2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref ReadersLT
+        Version: !GetAtt ReadersLT.LatestVersionNumber
+      MaxSize: 2
+      MinSize: 2
+      Tags:
+        - Key: Name
+          Value: ScyllaReadWorkersA
+          PropagateAtLaunch: true
+  StressWorkersWrite:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: StressWriteAG
+      VPCZoneIdentifier:
+        - Fn::ImportValue: !Sub ${VpcStackName}:StressSubnetA
+      Cooldown: 120
+      DesiredCapacity: 2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref WritersLT
+        Version: !GetAtt WritersLT.LatestVersionNumber
+      MaxSize: 2
+      MinSize: 2
+      Tags:
+        - Key: Name
+          Value: ScyllaWriteWorkersA
+          PropagateAtLaunch: true
