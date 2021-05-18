@@ -17,9 +17,17 @@ Select the node configuration suitable to the load - you may want to consult the
 While the cluster is bootstrapping, run the CloudFormation VPC stack as follows.
 
 ## VPC stack
+The latest version of the templates is published to S3 and can be used instead of the version from this repo:
+- [VPC stack](https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-vpc.cfn.yaml)
+- [Workers stack](https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-workers.cfn.yaml)
+
 Using the CLI:
 ```
 aws cloudformation create-stack --stack-name test-stress-vpc --template-body file://./stress-vpc.cfn.yaml
+```
+Or using the S3 URL:
+```
+aws cloudformation create-stack --stack-name test-stress-vpc --template-body https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-vpc.cfn.yaml
 ```
 
 Using the AWS web console, go to CloudFormation console and run a new stack:
