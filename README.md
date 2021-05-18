@@ -35,7 +35,7 @@ Or using the S3 URL:
 aws cloudformation create-stack --stack-name test-stress-vpc --template-url https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-vpc.cfn.yaml
 ```
 
-Using the AWS web console, go to CloudFormation console and run a new stack:
+Using the AWS web console, go to [AWS CloudFormation Console](https://console.aws.amazon.com/cloudformation/home) and run a new stack:
 ![New VPC stack](assets/cloudformation-vpc-run.png)
 
 When done, the stack will have outputs with the needed parameters for VPC peering with Scylla cloud: VPC ID, Account ID, VPC CIDR block.
