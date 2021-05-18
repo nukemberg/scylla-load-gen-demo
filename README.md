@@ -6,6 +6,13 @@ There are two CloudFormation templates:
 2. Workers stack - EC2 instances running the load test
 In order to run the load test in a secure manner private VPC IP addresses are uses which means that VPC peering is required. VPC stack is separate so you can run it, peer it with Scylla cloud and then run the workers stack as needed to generate load.
 
+# prerequisite
+
+* [AWS CLI](https://aws.amazon.com/cli/)
+* [Scylla Cloud](https://cloud.scylladb.com) Account
+* AWS Account and credentials
+
+
 # Running
 ## Scylla cloud
 Run a new Scylla cloud cluster for the load test:
@@ -23,6 +30,7 @@ The latest version of the templates is published to S3 and can be used instead o
 
 Using the CLI:
 ```
+cd scylla-load-gen-demo
 aws cloudformation create-stack --stack-name test-stress-vpc --template-body file://./stress-vpc.cfn.yaml
 ```
 Or using the S3 URL:
