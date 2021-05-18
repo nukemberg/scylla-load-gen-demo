@@ -1,5 +1,5 @@
 Parameters:
-  VpcStackName:
+  VPCStackName:
     Description: VPC Cloudformation stack name
     Type: String
   ScyllaNodes:
@@ -40,7 +40,7 @@ Resources:
         - Key: Name
           Value: ScyllaStressSG
       VpcId: 
-        Fn::ImportValue: !Sub ${VpcStackName}:Vpc
+        Fn::ImportValue: !Sub ${VPCStackName}:Vpc
   ReadersLT:
     Type: AWS::EC2::LaunchTemplate
     Properties:
@@ -167,7 +167,7 @@ Resources:
     Properties:
       AutoScalingGroupName: StressReadAG
       VPCZoneIdentifier:
-        - Fn::ImportValue: !Sub ${VpcStackName}:StressSubnetA
+        - Fn::ImportValue: !Sub ${VPCStackName}:StressSubnetA
       Cooldown: 120
       DesiredCapacity: 2
       LaunchTemplate:
@@ -184,7 +184,7 @@ Resources:
     Properties:
       AutoScalingGroupName: StressWriteAG
       VPCZoneIdentifier:
-        - Fn::ImportValue: !Sub ${VpcStackName}:StressSubnetA
+        - Fn::ImportValue: !Sub ${VPCStackName}:StressSubnetA
       Cooldown: 120
       DesiredCapacity: 2
       LaunchTemplate:

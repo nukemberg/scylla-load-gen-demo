@@ -73,8 +73,31 @@ aws cloudformation create-stack --stack-name test-scylla-workers --template-body
 ```
 Or using the S3 URL:
 ```
-aws cloudformation create-stack --stack-name test-stress-workers --template-url https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-workers.cfn.yaml
+aws cloudformation create-stack --stack-name test-stress-workers --template-url https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-workers.cfn.yaml --parameters file://./workers-params.json
 ```
+The stack parameters can be provided on command line as `--parameters ParameterKey=name,ParameterValue=xxxxx ParameterKey=name2,ParameterValue=yyyyy` or using parameter file such as
+```json
+[
+    {
+        "ParameterKey": "SSHKeyName",
+        "ParameterValue": "your-ssh-key-name"
+    },
+    {
+        "ParameterKey": "VPCStackName",
+        "ParameterValue": "test-stress-vpc"
+    },
+    {
+        "ParameterKey": "ScyllaNodes",
+        "ParameterValue": "172.31.0.11,172.31.1.11,172.31.2.11"
+    },
+    {
+        "ParameterKey": "ScyllaPassword",
+        "ParameterValue": "xxxxxxx"
+    }
+]
+```
+Save this file as `workers-params.json` and make sure to modify the parameters to the proper values for your environment.
+
 
 Using the web console:
 ![CloudFormation run workers stack](assets/cloudformation-workers-run.png)
