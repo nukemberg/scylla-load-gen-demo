@@ -26,6 +26,12 @@ The latest version of the templates is published to S3 and can be used instead o
 - [VPC stack](https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-vpc.cfn.yaml)
 - [Workers stack](https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-workers.cfn.yaml)
 
+There are two alternatives from running a CloudFomration template:
+- From the CLI
+- From AWS web console
+
+For each, you can use a template from S3 or this repo. 
+
 Using the CLI:
 ```
 aws cloudformation create-stack --stack-name test-stress-vpc --template-body file://./stress-vpc.cfn.yaml
