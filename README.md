@@ -27,7 +27,7 @@ aws cloudformation create-stack --stack-name test-stress-vpc --template-body fil
 ```
 Or using the S3 URL:
 ```
-aws cloudformation create-stack --stack-name test-stress-vpc --template-body https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-vpc.cfn.yaml
+aws cloudformation create-stack --stack-name test-stress-vpc --template-url https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-vpc.cfn.yaml
 ```
 
 Using the AWS web console, go to CloudFormation console and run a new stack:
@@ -59,6 +59,10 @@ You are now ready to run the workers stack which will apply the load.
 Using the CLI (note the use of a [parameters file](https://aws.amazon.com/blogs/devops/passing-parameters-to-cloudformation-stacks-with-the-aws-cli-and-powershell/)):
 ```
 aws cloudformation create-stack --stack-name test-scylla-workers --template-body file://./stress-workers.cfn.yaml --parameters file://./workers-params.json
+```
+Or using the S3 URL:
+```
+aws cloudformation create-stack --stack-name test-stress-workers --template-url https://scylla-devrel.s3.us-east-2.amazonaws.com/assets/autostress/stress-workers.cfn.yaml
 ```
 
 Using the web console:
