@@ -96,7 +96,7 @@ The stack parameters can be provided on command line as `--parameters ParameterK
     }
 ]
 ```
-Save this file as `workers-params.json` and make sure to modify the parameters to the proper values for your environment.
+Update `workers-params.json` and make sure to modify the parameters to the proper values for your environment.
 
 
 Using the web console:
