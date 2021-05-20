@@ -65,3 +65,6 @@ Outputs:
     Value: !Ref AWS::AccountId
   VPCCidr:
     Value: !GetAtt Vpc.CidrBlock
+  RoutingTableId:
+    Description: Routing table Id (for VPC peering)
+    Value: !Ref StressRoutingTable
