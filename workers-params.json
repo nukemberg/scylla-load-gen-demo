@@ -1,9 +1,5 @@
 [
     {
-        "ParameterKey": "SSHKeyName",
-        "ParameterValue": "your-ssh-key-name"
-    },
-    {
         "ParameterKey": "VPCStackName",
         "ParameterValue": "test-stress-vpc"
     },

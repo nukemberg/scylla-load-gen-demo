@@ -84,10 +84,6 @@ The stack parameters can be provided on command line as `--parameters ParameterK
 ```json
 [
     {
-        "ParameterKey": "SSHKeyName",
-        "ParameterValue": "your-ssh-key-name"
-    },
-    {
         "ParameterKey": "VPCStackName",
         "ParameterValue": "test-stress-vpc"
     },
@@ -108,7 +104,6 @@ Using the web console:
 ![CloudFormation run workers stack](assets/cloudformation-workers-run.png)
 
 The stack requires the following parameters - other parameters are optional:
-- `SSHKeyName` - SSH key already imported to EC2, used for SSH debugging access to workers
 - `VPCStackName` - The name you used for the VPC stack, e.g. `test-stress-vpc`
 - `ScyllaNodes` - A list of Scylla cloud nodes private IPs, copy pasted from the Scylla cloud "Connect" tab
 - `ScyllaPassword` - The password of the `scylla` user, copy pasted from the Scylla cloud "Connect" tab

@@ -8,9 +8,7 @@ Parameters:
   ScyllaPassword:
     Description: Scylla CQL password
     Type: String
-  SSHKeyName:
-    Description: SSH Key name
-    Type: String
+    NoEcho: true
   LatestAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
@@ -34,7 +32,6 @@ Metadata:
           default: Required parameters
         Parameters:
         - VPCStackName
-        - SSHKeyName
         - ScyllaNodes
         - ScyllaPassword
       - Label:
@@ -73,7 +70,6 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref LatestAMI
         InstanceType: !Ref WorkersInstanceType
-        KeyName: !Ref SSHKeyName
         UserData: !Base64 
           Fn::Join:
             - ''
@@ -133,7 +129,6 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref LatestAMI
         InstanceType: !Ref WorkersInstanceType
-        KeyName: !Ref SSHKeyName
         UserData: !Base64 
           Fn::Join:
             - ''
