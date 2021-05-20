@@ -18,7 +18,33 @@ Parameters:
     Description: Worker nodes instance type
     Type: String
     Default: c5.9xlarge
+  ReadWorkers:
+    Description: Number of reader loader nodes
+    Type: Number
+    Default: 2
+  WriteWorkers:
+    Description: Number of writer loader nodes
+    Type: Number
+    Default: 2
 
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required parameters
+        Parameters:
+        - VPCStackName
+        - SSHKeyName
+        - ScyllaNodes
+        - ScyllaPassword
+      - Label:
+          default: Worker configuration
+        Parameters:
+        - ReadWorkers
+        - WriteWorkers
+    ParameterLabels:
+      - WorkersInstanceType:
+          default: Worker nodes EC2 instance type
 
 Resources:
   StressSG:
@@ -70,7 +96,7 @@ Resources:
       SCYLLA_BENCH:
         nodes: !Ref ScyllaNodes
         password: !Ref ScyllaPassword
-        params: -mode read -workload uniform -partition-count 1000000000 -concurrency 400 -connection-count 64 -duration 30m -measure-latency false -replication-factor 3 -rows-per-request 1 -consistency-level one
+        params: -mode read -workload uniform -partition-count 10000000000 -concurrency 500 -connection-count 64 -duration 30m -measure-latency false -replication-factor 3 -rows-per-request 1 -consistency-level one
       AWS::CloudFormation::Init:
         config:
           packages:
@@ -130,7 +156,7 @@ Resources:
       SCYLLA_BENCH:
         nodes: !Ref ScyllaNodes
         password: !Ref ScyllaPassword
-        params: -mode write -workload uniform -partition-count 1000000000 -concurrency 400 -connection-count 64 -duration 30m -measure-latency false -replication-factor 3 -rows-per-request 1 -consistency-level one
+        params: -mode write -workload uniform -partition-count 10000000000 -concurrency 500 -connection-count 64 -duration 30m -measure-latency false -replication-factor 3 -rows-per-request 1 -consistency-level one
       AWS::CloudFormation::Init:
         config:
           packages:
@@ -169,12 +195,12 @@ Resources:
       VPCZoneIdentifier:
         - Fn::ImportValue: !Sub ${VPCStackName}:StressSubnetA
       Cooldown: 120
-      DesiredCapacity: 2
+      DesiredCapacity: !Ref ReadWorkers
       LaunchTemplate:
         LaunchTemplateId: !Ref ReadersLT
         Version: !GetAtt ReadersLT.LatestVersionNumber
-      MaxSize: 2
-      MinSize: 2
+      MaxSize: !Ref ReadWorkers
+      MinSize: !Ref ReadWorkers
       Tags:
         - Key: Name
           Value: ScyllaReadWorkersA
@@ -186,12 +212,12 @@ Resources:
       VPCZoneIdentifier:
         - Fn::ImportValue: !Sub ${VPCStackName}:StressSubnetA
       Cooldown: 120
-      DesiredCapacity: 2
+      DesiredCapacity: !Ref WriteWorkers
       LaunchTemplate:
         LaunchTemplateId: !Ref WritersLT
         Version: !GetAtt WritersLT.LatestVersionNumber
-      MaxSize: 2
-      MinSize: 2
+      MaxSize: !Ref WriteWorkers
+      MinSize: !Ref WriteWorkers
       Tags:
         - Key: Name
           Value: ScyllaWriteWorkersA
