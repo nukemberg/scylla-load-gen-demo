@@ -67,6 +67,11 @@ Using the web console:
 
 You are now ready to run the workers stack which will apply the load.
 ## Workers stack
+
+There are two alternatives from running a CloudFomration template for Workers stack:
+- From the CLI
+- From AWS web console
+
 Using the CLI (note the use of a [parameters file](https://aws.amazon.com/blogs/devops/passing-parameters-to-cloudformation-stacks-with-the-aws-cli-and-powershell/)):
 ```
 aws cloudformation create-stack --stack-name test-scylla-workers --template-body file://./stress-workers.cfn.yaml --parameters file://./workers-params.json
