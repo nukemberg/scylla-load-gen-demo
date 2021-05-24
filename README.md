@@ -98,6 +98,7 @@ The stack parameters can be provided on command line as `--parameters ParameterK
 ]
 ```
 Update `workers-params.json` and make sure to modify the parameters to the proper values for your environment.
+Use the **PRIVATE** IPs of the Scylla cluster, available in Clutser::Connect::Instructions.
 
 
 Using the web console:
