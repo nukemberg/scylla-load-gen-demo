@@ -1,6 +1,10 @@
 # Scylla load test demo
 This repository contains CloudFormation templates and supporting files to run an automated load test on a Scylla Cloud cluster for demo purposes.
 
+(Video, click to view)
+
+[![Video](https://img.youtube.com/vi/M8eDQVNEeN8/0.jpg)](https://www.youtube.com/watch?v=M8eDQVNEeN8)
+
 There are two CloudFormation templates:
 1. VPC stack - VPC, subnet, routing table etc.
 2. Workers stack - EC2 instances running the load test
